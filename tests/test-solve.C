@@ -44,7 +44,6 @@
 #include "linbox/matrix/sparse-matrix.h"
 #include "linbox/blackbox/scalar-matrix.h"
 #include "linbox/blackbox/direct-sum.h"
-//#include "linbox/blackbox/diagonal.h"
 #include "linbox/vector/stream.h"
 #include "linbox/solutions/solve.h"
 
@@ -853,7 +852,7 @@ int main (int argc, char **argv)
 		pass = false;
 #endif
 #if 0
-        
+
     if ( ! testBasicMethodsSolve (F, n) )
 		pass = false;
 #endif
