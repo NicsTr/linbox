@@ -16,6 +16,7 @@ tests/test-commentator
 tests/test-cra
 tests/test-det
 tests/test-frobenius
+tests/test-mpi-comm
 tests/test-rank-Int
 tests/test-rank-md
 tests/test-rank-u32
@@ -37,6 +38,7 @@ tests/test-modular-balanced-double
 tests/test-modular-balanced-int
 tests/test-moore-penrose
 tests/test-rational-reconstruction-base
+tests/test-serialization
 tests/test-smith-form-kannan-bachem
 tests/test-solve-nonsingular
 

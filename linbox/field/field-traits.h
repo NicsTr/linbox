@@ -74,14 +74,9 @@ namespace LinBox {
                 typedef RingCategories::RationalTag categoryTag;
         };
 */
-    template<class Element>
-    struct ClassifyRing<Givaro::ZRing<Element>> {
-        typedef RingCategories::IntegerTag categoryTag;
-    };
-
-        template<>
-        struct ClassifyRing<Givaro::ZRing<Givaro::Integer>> {
-                typedef RingCategories::IntegerTag categoryTag;
+        template<class Element>
+        struct ClassifyRing<Givaro::ZRing<Element>> {
+            typedef RingCategories::IntegerTag categoryTag;
         };
         template<>
         struct ClassifyRing<Givaro::IntegerDom> {
@@ -181,11 +176,11 @@ namespace LinBox {
 				return ( i >= 1 && i <= max );
 		}
 
-                    /* \brief returns the best modulus bitsize to use for e.g. ChineseRemaindering 
+                    /* \brief returns the best modulus bitsize to use for e.g. ChineseRemaindering
                      */
                 static inline uint64_t bestBitSize(){return maxModulus().bitsize()-1;}
 
-                    /* \brief returns the best modulus bitsize to use for e.g. ChineseRemaindering, 
+                    /* \brief returns the best modulus bitsize to use for e.g. ChineseRemaindering,
                      * given the dimension of linear algebra operations to be performed.
                      * Will be specialized for fields with delayed modular reductions.
                      */

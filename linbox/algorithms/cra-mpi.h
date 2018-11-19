@@ -111,7 +111,7 @@ namespace LinBox
 					int idle_process = 0;
 					//  receive sub-answers from child procs
 					_commPtr->recv(r, MPI_ANY_SOURCE);
-					idle_process = (_commPtr->get_stat()).MPI_SOURCE;
+					idle_process = (_commPtr->status()).MPI_SOURCE;
 					Domain D(primes[idle_process - 1]);
 					//  assimilate results
 					if(first_time){
@@ -199,7 +199,7 @@ namespace LinBox
 					_commPtr->recv(r.begin(), r.end(), MPI_ANY_SOURCE, 0);
 					//  determine which process sent answer
 					//  and give them a new prime
-					idle_process = (_commPtr->get_stat()).MPI_SOURCE;
+					idle_process = (_commPtr->status()).MPI_SOURCE;
 					Domain D(primes[idle_process - 1]);
 					Builder_.progress(D, r);
 					//  if still working, queue a prime
@@ -285,7 +285,7 @@ namespace LinBox
 					int idle_process = 0;
 					//  receive sub-answers from child procs
 					_commPtr->recv(r, MPI_ANY_SOURCE);
-					idle_process = (_commPtr->get_stat()).MPI_SOURCE;
+					idle_process = (_commPtr->status()).MPI_SOURCE;
 					Domain D(primes[idle_process - 1]);
 					//  assimilate results
 					if(first_time){
@@ -336,10 +336,10 @@ namespace LinBox
         template<class Function>
         void worker_task(Function& Iteration,  BlasVector<Domain> &r)
         {
-            
+
             int pp;
-            LinBox::MaskedPrimeIterator<LinBox::IteratorCategories::HeuristicTag>   gen(_commPtr->rank(),_commPtr->size());  
-            
+            LinBox::MaskedPrimeIterator<LinBox::IteratorCategories::HeuristicTag>   gen(_commPtr->rank(),_commPtr->size());
+
 
             std::unordered_set<int> prime_used;
 
@@ -376,7 +376,7 @@ namespace LinBox
 
                 //  determine which process sent answer
                 //  and give them a new tag either to continue or to stop
-                idle_process = (_commPtr->get_stat()).MPI_SOURCE;
+                idle_process = (_commPtr->status()).MPI_SOURCE;
 
                 poison_pills_left-=primes[idle_process - 1];
 
@@ -502,7 +502,7 @@ namespace LinBox
 
 					//  determine which process sent answer
 					//  and give them a new tag either to continue or to stop
-					idle_process = (_commPtr->get_stat()).MPI_SOURCE;
+					idle_process = (_commPtr->status()).MPI_SOURCE;
 
                     poison_pills_left-=primes[idle_process - 1];
 
