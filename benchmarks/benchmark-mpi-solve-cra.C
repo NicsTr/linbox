@@ -25,7 +25,6 @@
  * @brief Testing the MPI parallel/serial rational solver
  */
 
-#define __LINBOX_HAVE_MPI
 #define __Detailed_Time_Measurement
 
 #include "givaro/modular.h"
@@ -90,12 +89,9 @@ void run(BlasVector<Field>& X2, BlasMatrix<Field>& A, BlasVector<Field>& B, Comm
     Field::Element d;
 
     double starttime = MPI_Wtime();
-    solveCRA(X2, d, A, B, RingCategories::IntegerTag(),
-             Method::BlasElimination(),
-             // Method::Hybrid(communicator),
-             &communicator);
+    solveCRA(X2, d, A, B, RingCategories::IntegerTag(), Method::BlasElimination(), &communicator);
 
-    if (0 == communicator.rank()) {
+    if (communicator.master()) {
         double endtime = MPI_Wtime();
         std::cout << "Total CPU time (seconds): " << endtime - starttime << std::endl;
         checkResult(ZZ, A, B, X2, d);
@@ -115,7 +111,7 @@ int main(int argc, char** argv)
     size_t n = 1;
 
     static Argument args[] = {{'n', "-n N", "Set column and row dimension of test matrices to N.", TYPE_INT, &n},
-                              {'b', "-b B", "Set the mxaimum number of digits of integers to generate.", TYPE_INT, &bits},
+                              {'b', "-b B", "Set the maximum number of digits of integers to generate.", TYPE_INT, &bits},
                               END_OF_ARGUMENTS};
     parseArguments(argc, argv, args);
 
@@ -126,13 +122,13 @@ int main(int argc, char** argv)
     BlasVector<Field> X(ZZ, A.coldim()), B(ZZ, A.coldim());
 
     // Generating data
-    if (0 == communicator.rank()) {
+    if (communicator.master()) {
         genData(ZZ, A, bits);
         genData(ZZ, B, bits);
     }
 
-    communicator.bcast(A, 0);
-    communicator.bcast(B, 0);
+    communicator.bcast(A);
+    communicator.bcast(B);
 
     run(X, A, B, communicator);
 

@@ -793,7 +793,7 @@ namespace LinBox
             chrono.stop();
             std::cout<<
 #ifdef __LINBOX_HAVE_MPI
-            "Process "<<C->rank()<< 
+            "Process "<<C->rank()<<
 #endif
             " Modulo "<<chrono.usertime()<<std::endl;
 #endif
@@ -805,9 +805,9 @@ namespace LinBox
 			solvein( x, Ap, Bp, M);
 #ifdef __Detailed_Time_Measurement
             chrono.stop();
-            std::cout<< 
+            std::cout<<
 #ifdef __LINBOX_HAVE_MPI
-            "Process "<<C->rank()<< 
+            "Process "<<C->rank()<<
 #endif
             " Solve "<<chrono.usertime()<<std::endl;
 #endif

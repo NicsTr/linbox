@@ -61,6 +61,7 @@ namespace LinBox {
         // Accessors
         int size() const { return _size; }
         int rank() const { return _rank; }
+        bool master() const { return _rank == 0; }
         MPI_Status status() const { return _status; }
         MPI_Comm comm() const { return _comm; }
 
@@ -73,8 +74,8 @@ namespace LinBox {
         // whole object communication
         template <class T> void send(const T& value, int dest);
         template <class T> void ssend(const T& value, int dest);
-        template <class T> void recv(T& value, int src);
-        template <class T> void bcast(T& value, int src);
+        template <class T> void recv(T& value, int src = 0);
+        template <class T> void bcast(T& value, int src = 0);
 
     protected:
         MPI_Comm _comm;       // MPI's handle for the communicator
