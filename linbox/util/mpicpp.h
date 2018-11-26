@@ -24,10 +24,20 @@
 #define __LINBOX_mpicpp_H
 
 #ifndef __LINBOX_HAVE_MPI
+
 namespace LinBox {
-    // Dummy declaration.
-    using Communicator = int;
+    // Dummy declaration when no MPI exists.
+    // This is used in tests to have simple compatibility.
+    class Communicator {
+    public:
+        Communicator(int* argc, char*** argv) {}
+
+        inline int size() const { return 1; }
+        inline int rank() const { return 0; }
+        inline bool master() const { return true; }
+    };
 }
+
 #else
 
 #include <mpi.h>
