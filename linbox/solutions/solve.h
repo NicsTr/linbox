@@ -66,13 +66,14 @@ namespace LinBox
 
     // for specialization with respect to the DomainCategory
     template< class Vector, class Blackbox, class SolveMethod, class DomainCategory>
-    Vector & solve (Vector & 			x,
-            const Blackbox &                A,
-            const Vector &			b,
-            const DomainCategory &        tag,
-            const SolveMethod &            M);
+    Vector & solve (Vector &            x,
+                    const Blackbox &                A,
+                    const Vector &          b,
+                    const DomainCategory &        tag,
+                    const SolveMethod &            M);
 
     /** \brief Solve Ax = b, for x.
+     * \ingroup solutions
      *
      * Vector x such that Ax = b is returned.  In the case of a singular
      * matrix A, if the system is consistent, a random solution is returned
@@ -89,12 +90,10 @@ namespace LinBox
      * @param [in]  M method to use (\see solutions/method.h)
      * @return reference to \p x
      */
-     // * \ingroup solutions
-    //and the SolveStatus, if non-null, is set to indicate inconsistency.
     template< class Vector, class Blackbox, class SolveMethod>
-    Vector & solve (Vector &        		x,
+    Vector & solve (Vector &                x,
             const Blackbox &                A,
-            const Vector &			b,
+            const Vector &          b,
             const SolveMethod &             M)
     {
         return solve(x, A, b, typename FieldTraits<typename Blackbox::Field>::categoryTag(), M);
@@ -124,7 +123,7 @@ namespace LinBox
     /**  @internal Blackbox method specialisation */
     template <class Vector, class BB>
     Vector& solve(Vector& x, const BB& A, const Vector& b,
-              const Method::Blackbox& m)
+                  const Method::Blackbox& m)
     {
         // what is chosen here should be best and/or most reliable currently available choice
         // 		integer c; A.field().cardinality(c);
@@ -138,7 +137,7 @@ namespace LinBox
     /**  @internal Elimination method specialisation */
     template <class Vector, class BB>
     Vector& solve(Vector& x, const BB& A, const Vector& b,
-              const Method::Elimination& m)
+                  const Method::Elimination& m)
     {
         integer c, p;
         A.field().cardinality(c);
@@ -178,7 +177,7 @@ namespace LinBox
     //! @internal  Change of representation to be able to call the sparse elimination
     template <class Vector, class Blackbox>
     Vector& solve(Vector& x, const Blackbox& A, const Vector& b,
-              const Method::SparseElimination& m)
+                  const Method::SparseElimination& m)
     {
         typedef typename Blackbox::Field Field;
         typedef SparseMatrix<Field,SparseMatrixFormat::SparseSeq> SparseBB;
@@ -189,7 +188,7 @@ namespace LinBox
 
     template <class Vector, class Blackbox, class Random>
     Vector& solve(Vector& x, const Blackbox& A, const Vector& b,
-              const Method::SparseElimination& m, Random& generator)
+                  const Method::SparseElimination& m, Random& generator)
     {
         typedef typename Blackbox::Field Field;
         typedef SparseMatrix<Field,SparseMatrixFormat::SparseSeq> SparseBB;
@@ -201,9 +200,9 @@ namespace LinBox
     //! @internal specialisation for inplace SparseElimination on GF2
     template <class Vector>
     Vector& solvein(Vector& x,
-            GaussDomain<GF2>::Matrix    &A,
-            const Vector& b,
-            const Method::SparseElimination& m)
+                    GaussDomain<GF2>::Matrix    &A,
+                    const Vector& b,
+                    const Method::SparseElimination& m)
     {
         commentator().start ("Sparse Elimination Solve In Place over GF2", "GF2sesolvein");
         GaussDomain<GF2> GD ( A.field() );
@@ -213,10 +212,10 @@ namespace LinBox
     }
     template <class Vector, class Random>
     Vector& solvein(Vector& x,
-            GaussDomain<GF2>::Matrix    &A,
-            const Vector& b,
-            const Method::SparseElimination& m,
-            Random& generator)
+                    GaussDomain<GF2>::Matrix    &A,
+                    const Vector& b,
+                    const Method::SparseElimination& m,
+                    Random& generator)
     {
         commentator().start ("Sparse Elimination Solve In Place over GF2", "GF2sesolvein");
         GaussDomain<GF2> GD ( A.field() );
@@ -228,9 +227,9 @@ namespace LinBox
     //! @internal specialisation for SparseElimination on GF2
     template <class Vector>
     Vector& solve(Vector& x,
-              GaussDomain<GF2>::Matrix    &A,
-              const Vector& b,
-              const Method::SparseElimination& m)
+                  GaussDomain<GF2>::Matrix    &A,
+                  const Vector& b,
+                  const Method::SparseElimination& m)
     {
         // We make a copy
         GaussDomain<GF2>::Matrix SpA(A.field(), A.rowdim(), A.coldim());
@@ -239,10 +238,10 @@ namespace LinBox
     }
     template <class Vector, class Random>
     Vector& solve(Vector& x,
-              GaussDomain<GF2>::Matrix    &A,
-              const Vector& b,
-              const Method::SparseElimination& m,
-              Random& generator)
+                  GaussDomain<GF2>::Matrix    &A,
+                  const Vector& b,
+                  const Method::SparseElimination& m,
+                  Random& generator)
     {
         // We make a copy
         GaussDomain<GF2>::Matrix SpA(A.field(), A.rowdim(), A.coldim());
@@ -253,30 +252,23 @@ namespace LinBox
     //! @internal Generic Elimination for SparseMatrix
     template <class Vector, class Field>
     Vector& solve(Vector& x, const SparseMatrix<Field>& A, const Vector& b,
-              const Method::Elimination& m)
+                  const Method::Elimination& m)
     {
         //             bool consistent = false;
         // sparse elimination based solver can be called here ?
         // For now we call the dense one
 
         return solve(x, A, b,
-                 typename FieldTraits<typename SparseMatrix<Field>::Field>::categoryTag(),
-                 Method::BlasElimination(m));
-
-#if 0
-        if ( ! consistent ) {  // we will return the zero vector
-            for (typename Vector::iterator i = x.begin(); i != x.end(); ++i) *i = A.field().zero;
-        }
-        return x;
-#endif
+                     typename FieldTraits<typename SparseMatrix<Field>::Field>::categoryTag(),
+                     Method::BlasElimination(m));
     }
     // BlasElimination section ///////////////////
 
     //! @internal Generic Elimination on Z/pZ (convert A to DenseMatrix)
     template <class Vector, class BB>
     Vector& solve(Vector& x, const BB& A, const Vector& b,
-              const RingCategories::ModularTag & tag,
-              const Method::BlasElimination& m)
+                  const RingCategories::ModularTag & tag,
+                  const Method::BlasElimination& m)
     {
         BlasMatrix<typename BB::Field> B(A); // copy A into a BlasMatrix
         return solve(x, B, b, tag, m);
@@ -285,29 +277,14 @@ namespace LinBox
     //! @internal Generic Elimination for DenseMatrix on Z/pZ
     template <class Vector, class Field>
     Vector& solve(Vector& x, const BlasMatrix<Field>& A, const Vector& b,
-              const RingCategories::ModularTag & tag,
-              const Method::BlasElimination& m)
+                  const RingCategories::ModularTag & tag,
+                  const Method::BlasElimination& m)
     {
         if ((A.coldim() != x.size()) || (A.rowdim() != b.size()))
             throw LinboxError("LinBox ERROR: dimension of data are not compatible in system solving (solving impossible)");
 
-//		commentator().start ("Solving linear system (FFLAS LQUP)", "LQUP::left_solve");
-        //bool consistent = false;
-//std::cerr<<"Thread("<<omp_get_thread_num()<<") >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> "<<std::endl;
         LQUPMatrix<Field> LQUP(A);
-        //FactorizedMatrix<Field> LQUP(A);
-
         LQUP.left_solve(x, b);
-//std::cerr<<"Thread("<<omp_get_thread_num()<<") <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< "<<std::endl;
-
-#if 0
-        // this should be implemented directly in left_solve
-        if ( ! consistent ) {  // we will return the zero vector
-            for (typename Vector::iterator i = x.begin(); i != x.end(); ++i)
-                *i = A.field().zero;
-        }
-#endif
-//		commentator().stop ("done", NULL, "LQUP::left_solve");
 
         return x;
     }
@@ -315,23 +292,20 @@ namespace LinBox
     //! @internal  Elimination for DenseMatrix on Z/pZ. Matrix A can be overwritten.
     template <class Vector, class Field>
     Vector& solvein(Vector& x, BlasMatrix<Field>& A, const Vector& b,
-              const Method::BlasElimination& m)
+                    const Method::BlasElimination& m)
     {
         if ((A.coldim() != x.size()) || (A.rowdim() != b.size()))
             throw LinboxError("LinBox ERROR: dimension of data are not compatible in system solving (solving impossible)");
 
-//		commentator().start ("Solving linear system (FFLAS LQUP)", "LQUP::left_solve");
         LQUPMatrix<Field> LQUP(A);
         LQUP.left_solve(x, b);
-//		commentator().stop ("done", NULL, "LQUP::left_solve");
-
         return x;
     }
 
     template <class Vector, class Field>
     Vector& solve(Vector& x, const BlasMatrix<Field>& A, const Vector& b,
-              const RingCategories::ModularTag & tag,
-              const Method::Dixon & m)
+                  const RingCategories::ModularTag & tag,
+                  const Method::Dixon & m)
     {
         throw LinBoxFailure("You cannot do this");
     }
@@ -347,8 +321,8 @@ namespace LinBox
     //! @internal Generic Elimination for  Integer matrices
     template <class Vector, class BB>
     Vector& solve(Vector& x, const BB& A, const Vector& b,
-              const RingCategories::IntegerTag & tag,
-              const Method::BlasElimination& m)
+                  const RingCategories::IntegerTag & tag,
+                  const Method::BlasElimination& m)
     {
         std::cout<<"try to solve system over the integer\n"
         <<"the API need either \n"
@@ -357,49 +331,6 @@ namespace LinBox
         throw LinboxError("bad use of integer API solver\n");
 
     }
-
-#if 0
-    template <class RatVector, class Vector, class BB, class MethodTraits>
-    Vector& solve(RatVector& x, const BB& A, const Vector& b,
-              const RingCategories::RationalTag & tag,
-              const MethodTraits& m)
-    {
-        if ((A.coldim() != x.size()) || (A.rowdim() != b.size()))
-            throw LinboxError("LinBox ERROR: dimension of data are not compatible in system solving (solving impossible)");
-
-        commentator().start ("Rational CRA Solve", "Rsolve");
-                typedef Givaro::Modular<double> Field;
-                PrimeIterator<IteratorCategories::HeuristicTag> genprime(FieldTraits<Field>::bestBitSize(A.coldim()));
-
-        RationalRemainder2< VarPrecEarlyMultipCRA<Field> > rra(3UL);//using default RR method
-        IntegerModularSolve<BB,Vector,MethodTraits > iteration(A, b, m);
-        integer den;
-        BlasVector<Givaro::ZRing<Integer> > num(A.field(),A.coldim());
-
-        rra(num, den, iteration, genprime);
-
-        typename RatVector::iterator it_x= x.begin();
-        typename BlasVector<Givaro::ZRing<Integer> >::const_iterator it_num= num.begin();
-
-        for (; it_x != x.end(); ++it_x, ++it_num){
-            integer g = gcd( *it_num, den);
-            *it_x = typename RatVector::value_type(*it_num/g, den/g);
-        }
-
-        commentator().stop ("done", NULL, "Rsolve");
-        return x;
-    }
-#endif
-    // error handler for non defined solver over rational domain
-#if 0
-    template <class Vector, class BB, class MethodTraits>
-    Vector& solve(Vector& x, const BB& A, const Vector& b,
-              const RingCategories::RationalTag & tag,
-              const MethodTraits& m)
-    {
-        throw LinboxError("LinBox ERROR: solver not yet defined over rational domain");
-    }
-#endif
 
     /*
      * 1st integer solver API :
@@ -454,8 +385,8 @@ namespace LinBox
     // input matrix is generic (copying it into a BlasMatrix)
     template <class RatVector, class Vector, class BB>
     RatVector& solve(RatVector& x, const BB& A, const Vector& b,
-             const RingCategories::IntegerTag & tag,
-             const Method::BlasElimination& m)
+                     const RingCategories::IntegerTag & tag,
+                     const Method::BlasElimination& m)
     {
         BlasMatrix<typename BB::Field> B(A); // copy A into a BlasMatrix
         return solve(x, B, b, tag, m);
@@ -464,8 +395,8 @@ namespace LinBox
     // input matrix is a BlasMatrix (no copy)
     template <class RatVector, class Vector, class Ring>
     RatVector& solve(RatVector& x, const BlasMatrix<Ring>& A, const Vector& b,
-             const RingCategories::IntegerTag & tag,
-             const Method::BlasElimination& m)
+                     const RingCategories::IntegerTag & tag,
+                     const Method::BlasElimination& m)
     {
 
         Method::Dixon mDixon(m);
@@ -514,8 +445,8 @@ namespace LinBox
     // input matrix is generic (copying it into a BlasMatrix)
     template <class Vector, class BB>
     Vector& solve(Vector& x, typename BB::Field::Element &d, const BB& A, const Vector& b,
-              const RingCategories::IntegerTag & tag,
-              const Method::BlasElimination& m)
+                  const RingCategories::IntegerTag & tag,
+                  const Method::BlasElimination& m)
     {
         BlasMatrix<typename BB::Field> B(A); // copy A into a BlasMatrix
         return solve(x, d, B, b, tag, m);
@@ -524,9 +455,9 @@ namespace LinBox
     // input matrix is a BlasMatrix (no copy)
     template <class Vector, class Ring>
     Vector& solve(Vector& x, typename Ring::Element &d,
-              const BlasMatrix<Ring>& A, const Vector& b,
-              const RingCategories::IntegerTag & tag,
-              const Method::BlasElimination& m)
+                  const BlasMatrix<Ring>& A, const Vector& b,
+                  const RingCategories::IntegerTag & tag,
+                  const Method::BlasElimination& m)
     {
         //!@bug check we don't copy
         Method::Dixon mDixon(m);
@@ -536,10 +467,10 @@ namespace LinBox
     // input matrix is a SparseMatrix (no copy)
     template <class Vect, class Ring>
     Vect& solve(Vect& x, typename Ring::Element &d,
-            const SparseMatrix<Ring, SparseMatrixFormat::SparseSeq>& A,
-            const Vect& b,
-            const RingCategories::IntegerTag & tag,
-            const Method::SparseElimination& m)
+                const SparseMatrix<Ring, SparseMatrixFormat::SparseSeq>& A,
+                const Vect& b,
+                const RingCategories::IntegerTag & tag,
+                const Method::SparseElimination& m)
     {
         Method::Dixon mDixon(m);
         return solve(x, d, A, b, tag, mDixon);
@@ -551,9 +482,9 @@ namespace LinBox
     */
     template <class Vector, class Ring>
     Vector& solve(Vector& x, typename Ring::Element &d,
-              const BlasMatrix<Ring>& A,
-              const Vector& b,
-              const RingCategories::IntegerTag tag, Method::Dixon& m)
+                  const BlasMatrix<Ring>& A,
+                  const Vector& b,
+                  const RingCategories::IntegerTag tag, Method::Dixon& m)
     {
         if ((A.coldim() != x.size()) || (A.rowdim() != b.size()))
             throw LinboxError("LinBox ERROR: dimension of data are not compatible in system solving (solving impossible)");
@@ -646,10 +577,10 @@ namespace LinBox
     */
     template <class Vect, class Ring>
     Vect& solve(Vect& x, typename Ring::Element &d,
-            const SparseMatrix<Ring, SparseMatrixFormat::SparseSeq> & A,
-            const Vect& b,
-            const RingCategories::IntegerTag tag,
-            Method::Dixon& m)
+                const SparseMatrix<Ring, SparseMatrixFormat::SparseSeq> & A,
+                const Vect& b,
+                const RingCategories::IntegerTag tag,
+                Method::Dixon& m)
     {
         if ((A.coldim() != x.size()) || (A.rowdim() != b.size()))
             throw LinboxError("LinBox ERROR: dimension of data are not compatible in system solving (solving impossible)");
@@ -678,8 +609,8 @@ namespace LinBox
 
     template <class Vector, class BB>
     Vector& solve(Vector& x, const BB& A, const Vector& b,
-              const RingCategories::ModularTag & tag,
-              const Method::NonBlasElimination& m)
+                  const RingCategories::ModularTag & tag,
+                  const Method::NonBlasElimination& m)
     {
         BlasMatrix<typename BB::Field> B(A); // copy
         return solve(x, B, b, tag, m);
@@ -695,8 +626,8 @@ namespace LinBox
     // may throw SolverFailed or InconsistentSystem
     template <class Vector, class BB>
     Vector& solve(Vector& x, const BB& A, const Vector& b,
-              const RingCategories::ModularTag & tag,
-              const Method::Wiedemann& m)
+                  const RingCategories::ModularTag & tag,
+                  const Method::Wiedemann& m)
     {
         if ((A.coldim() != x.size()) || (A.rowdim() != b.size()))
             throw LinboxError("LinBox ERROR: dimension of data are not compatible in system solving (solving impossible)");
@@ -710,8 +641,8 @@ namespace LinBox
     // may throw SolverFailed or InconsistentSystem
     template <class Vector, class BB>
     Vector& solve(Vector& x, const BB& A, const Vector& b,
-              const RingCategories::ModularTag & tag,
-              const Method::BlockWiedemann& m)
+                  const RingCategories::ModularTag & tag,
+                  const Method::BlockWiedemann& m)
     {
         if ((A.coldim() != x.size()) || (A.rowdim() != b.size()))
             throw LinboxError("LinBox ERROR: dimension of data are not compatible in system solving (solving impossible)");
@@ -729,8 +660,8 @@ namespace LinBox
     // may throw SolverFailed or InconsistentSystem
     template <class Vector, class BB>
     Vector& solve(Vector& x, const BB& A, const Vector& b,
-              const RingCategories::ModularTag & tag,
-              const Method::Coppersmith& m)
+                  const RingCategories::ModularTag & tag,
+                  const Method::Coppersmith& m)
     {
         if ((A.coldim() != x.size()) || (A.rowdim() != b.size()))
             throw LinboxError("LinBox ERROR: dimension of data are not compatible in system solving (solving impossible)");
