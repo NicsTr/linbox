@@ -49,6 +49,7 @@
 
 #ifdef __LINBOX_HAVE_MPI
 #include "linbox/algorithms/cra-mpi.h"
+#include "linbox/algorithms/cra-mpi-rational.h"
 #endif
 #include "linbox/algorithms/rational-cra2.h"
 
