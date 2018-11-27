@@ -23,7 +23,7 @@
 
 namespace LinBox {
     template <class RatCRABase>
-    struct MPIratChineseRemainder {
+    struct MPIRationalRemainder {
         typedef typename RatCRABase::Domain Domain;
         typedef typename RatCRABase::DomainElement DomainElement;
 
@@ -34,7 +34,7 @@ namespace LinBox {
 
     public:
         template <class Param>
-        MPIratChineseRemainder(const Param& b, Communicator* c)
+        MPIRationalRemainder(const Param& b, Communicator* c)
             : Builder_(b)
             , _commPtr(c)
             , _numprocs(c->size())

@@ -40,7 +40,7 @@
 #include <stdlib.h>
 
 #ifdef __LINBOX_HAVE_MPI
-#include "linbox/util/mpicpp.h" //#include "linbox/util/mpi-gmp.inl"
+#include "linbox/util/mpicpp.h"
 #include <mpi.h>
 #else
 #include "linbox/algorithms/cra-domain-omp.h" //<---Only compile without MPI
