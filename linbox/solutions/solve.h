@@ -777,7 +777,7 @@ namespace LinBox
                      Communicator *Cptr = nullptr)
     {
         Integer den(1);
-        if(!Cptr || Cptr->rank() == 0){
+        if (!Cptr || Cptr->master()) {
             // @fixme This check could be done once upstream,
             // as this solveCRA routine should not be called directly.
             if ((A.coldim() != x.size()) || (A.rowdim() != b.size()))
@@ -804,15 +804,15 @@ namespace LinBox
         auto n = A.coldim();
         double hadamard = n * (Givaro::naturallog(n) + 2 * Givaro::naturallog(max));
 
-        #ifdef __LINBOX_HAVE_MPI
-                MPIRationalRemainder<FullMultipRatCRA<Givaro::ModularBalanced<double>>> cra(hadamard, Cptr);
-        #else
-                RationalRemainder<FullMultipRatCRA<Givaro::ModularBalanced<double>>> cra(hadamard);
-        #endif
+#ifdef __LINBOX_HAVE_MPI
+        MPIRationalRemainder<FullMultipRatCRA<Givaro::ModularBalanced<double>>> cra(hadamard, Cptr);
+#else
+        RationalRemainder<FullMultipRatCRA<Givaro::ModularBalanced<double>>> cra(hadamard);
+#endif
 
         cra(num, den, iteration, genprime);
 
-        if(!Cptr || Cptr->rank() == 0){
+        if (!Cptr || Cptr->master()) {
             auto it_x = x.begin();
             auto it_num = num.begin();
 

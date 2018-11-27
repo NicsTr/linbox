@@ -49,11 +49,6 @@ namespace LinBox
 		Vect& result (Vect &num, Integer& den)
 		{
             Father_t::result(num, false);
-            
-#ifdef __Detailed_Time_Measurement
-            Timer chrono;
-            chrono.start();
-#endif
             den = 1;
             const auto& mod = Father_t::getModulus();
             Integer s, nd;
@@ -67,10 +62,6 @@ namespace LinBox
                     den *= nd;
                 }
             }
-#ifdef __Detailed_Time_Measurement
-		    chrono.stop();
-            std::cout<<"Process 0 RR "<<chrono.usertime()<<std::endl;
-#endif
             return num;
         }
 

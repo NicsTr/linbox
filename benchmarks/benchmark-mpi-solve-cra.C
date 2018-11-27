@@ -25,8 +25,6 @@
  * @brief Testing the MPI parallel/serial rational solver
  */
 
-#define __Detailed_Time_Measurement
-
 #include "givaro/modular.h"
 #include "givaro/zring.h"
 #include "linbox/linbox-config.h"

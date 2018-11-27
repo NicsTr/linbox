@@ -25,8 +25,6 @@
  * @brief Testing the MPI parallel/serial rational solver
  */
 
-//#define __Detailed_Time_Measurement
-
 #include "givaro/modular.h"
 #include "givaro/zring.h"
 #include "linbox/linbox-config.h"
@@ -47,7 +45,6 @@
 #endif
 
 using namespace LinBox;
-using namespace std;
 
 template <class Field, class Matrix>
 static bool checkResult(const Field& ZZ, Matrix& A, BlasVector<Field>& B, BlasVector<Field>& X, Integer& d)
@@ -111,7 +108,7 @@ bool test_set(BlasVector<Givaro::ZRing<Integer>>& X2, BlasMatrix<Givaro::ZRing<I
     double endtime = omp_get_wtime();
 #endif
 
-    if (0 == Cptr->rank()) {
+    if (Cptr->master()) {
         std::cout << "Total CPU time (seconds): " << endtime - starttime << std::endl;
         tag = checkResult(ZZ, A, B, X2, d);
     }
@@ -151,7 +148,7 @@ int main(int argc, char** argv)
     DenseVector X(ZZ, A.rowdim()), X2(ZZ, A.coldim()), B(ZZ, A.coldim());
 
     for (long j = 0; j < (long)niter; j++) {
-        if (0 == communicator.rank()) {
+        if (communicator.master()) {
             genData(ZZ, A, bits);
             genData(ZZ, B, bits);
         }

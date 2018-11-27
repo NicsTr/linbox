@@ -66,7 +66,7 @@ namespace LinBox {
 	};
 
 
-	using Givaro::Caster;
+    using Givaro::Caster;
     template<class Element>
     struct ClassifyRing<Givaro::ZRing<Element>> {
         typedef RingCategories::IntegerTag categoryTag;
