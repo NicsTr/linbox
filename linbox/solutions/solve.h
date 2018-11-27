@@ -64,7 +64,7 @@
 namespace LinBox
 {
 
-    // for specialization with respect to the DomainCategory
+        // for specialization with respect to the DomainCategory
     template< class Vector, class Blackbox, class SolveMethod, class DomainCategory>
     Vector & solve (Vector &            x,
                     const Blackbox &                A,
@@ -72,69 +72,70 @@ namespace LinBox
                     const DomainCategory &        tag,
                     const SolveMethod &            M);
 
-    /** \brief Solve Ax = b, for x.
-     * \ingroup solutions
-     *
-     * Vector x such that Ax = b is returned.  In the case of a singular
-     * matrix A, if the system is consistent, a random solution is returned
-     * by default.  The method parameter may contain an indication that an
-     * arbitrary element of the solution space is acceptable, which can be
-     * faster to compute.  If the system is inconsistent the zero vector is
-     * returned.
-     *
-     * @warning no doc for when using what method
-     *
-     * @param [out] x solution
-     * @param [in]  A matrix
-     * @param [in]  b target
-     * @param [in]  M method to use (\see solutions/method.h)
-     * @return reference to \p x
-     */
+        /** \brief Solve Ax = b, for x.
+         *
+         * Vector x such that Ax = b is returned.  In the case of a singular
+         * matrix A, if the system is consistent, a random solution is returned
+         * by default.  The method parameter may contain an indication that an
+         * arbitrary element of the solution space is acceptable, which can be
+         * faster to compute.  If the system is inconsistent the zero vector is
+         * returned.
+         *
+         * @warning no doc for when using what method
+         *
+         * @param [out] x solution
+         * @param [in]  A matrix
+         * @param [in]  b target
+         * @param [in]  M method to use (\see solutions/method.h)
+             * @return reference to \p x
+             */
+        // * \ingroup solutions
+        //and the SolveStatus, if non-null, is set to indicate inconsistency.
     template< class Vector, class Blackbox, class SolveMethod>
     Vector & solve (Vector &                x,
-            const Blackbox &                A,
-            const Vector &          b,
-            const SolveMethod &             M)
+                    const Blackbox &                A,
+                    const Vector &          b,
+                    const SolveMethod &             M)
     {
         return solve(x, A, b, typename FieldTraits<typename Blackbox::Field>::categoryTag(), M);
     }
 
-    /*!
-     * the solve with default method.
-     */
+        /*!
+         * the solve with default method.
+         */
     template< class Vector, class Blackbox>
     Vector& solve(Vector& x, const Blackbox& A, const Vector& b)
     {
         return solve(x, A, b, Method::Hybrid());
     }
 
-    // in methods.h FoobarMethod and Method::Foobar are the same class.
-    // in methods.h template<BB> bool useBB(const BB& A) is defined.
+        // in methods.h FoobarMethod and Method::Foobar are the same class.
+        // in methods.h template<BB> bool useBB(const BB& A) is defined.
 
-    //! @internal specialize this on blackboxes which have local methods
+        //! @internal specialize this on blackboxes which have local methods
     template <class Vector, class BB>
     Vector& solve(Vector& x, const BB& A, const Vector& b,
-              const Method::Hybrid& m)
+                  const Method::Hybrid& m)
     {
         if (useBB(A)) return solve(x, A, b, Method::Blackbox(m));
         else return solve(x, A, b, Method::Elimination(m));
     }
 
-    /**  @internal Blackbox method specialisation */
+        /**  @internal Blackbox method specialisation */
     template <class Vector, class BB>
     Vector& solve(Vector& x, const BB& A, const Vector& b,
                   const Method::Blackbox& m)
     {
-        // what is chosen here should be best and/or most reliable currently available choice
-        // 		integer c; A.field().cardinality(c);
-        // 		if (c < 100) return solve(x, A, b, Method::BlockLanczos(m));
+            // what is chosen here should be best and/or most reliable currently available choice
+            //      integer c; A.field().cardinality(c);
+            //      if (c < 100) return solve(x, A, b, Method::BlockLanczos(m));
         return solve(x, A, b, Method::Wiedemann(m));
     }
 
-    //x @todo temporary - fix this
-    //#define inBlasRange(p) true
+        //x @todo temporary - fix this
+        //#define inBlasRange(p) true
 
-    /**  @internal Elimination method specialisation */
+        /**  @internal Elimination method specialisation */
     template <class Vector, class BB>
     Vector& solve(Vector& x, const BB& A, const Vector& b,
                   const Method::Elimination& m)
@@ -142,17 +143,17 @@ namespace LinBox
         integer c, p;
         A.field().cardinality(c);
         A.field().characteristic(p);
-        //if ( p == 0 || (c == p && inBlasRange(p)) )
+            //if ( p == 0 || (c == p && inBlasRange(p)) )
         return solve(x, A, b,
-                 typename FieldTraits<typename BB::Field>::categoryTag(),
-                 Method::BlasElimination(m));
-        //else
-        //	return solve(x, A, b,
-        //			typename FieldTraits<typename BB::Field>::categoryTag(),
-        //			Method::NonBlasElimination(m));
+                     typename FieldTraits<typename BB::Field>::categoryTag(),
+                     Method::BlasElimination(m));
+            //else
+            //  return solve(x, A, b,
+            //          typename FieldTraits<typename BB::Field>::categoryTag(),
+            //          Method::NonBlasElimination(m));
     }
 
-    //! @internal inplace Sparse Elimination.
+        //! @internal inplace Sparse Elimination.
     template <class Vector, class Field>
     Vector& solvein(Vector& x, SparseMatrix<Field, SparseMatrixFormat::SparseSeq>& A, const Vector& b, const Method::SparseElimination& m)
     {
@@ -174,7 +175,7 @@ namespace LinBox
     }
 
 
-    //! @internal  Change of representation to be able to call the sparse elimination
+        //! @internal  Change of representation to be able to call the sparse elimination
     template <class Vector, class Blackbox>
     Vector& solve(Vector& x, const Blackbox& A, const Vector& b,
                   const Method::SparseElimination& m)
@@ -197,7 +198,7 @@ namespace LinBox
         return solvein(x, SpA, b, generator);
     }
 
-    //! @internal specialisation for inplace SparseElimination on GF2
+        //! @internal specialisation for inplace SparseElimination on GF2
     template <class Vector>
     Vector& solvein(Vector& x,
                     GaussDomain<GF2>::Matrix    &A,
@@ -224,14 +225,14 @@ namespace LinBox
         return x;
     }
 
-    //! @internal specialisation for SparseElimination on GF2
+        //! @internal specialisation for SparseElimination on GF2
     template <class Vector>
     Vector& solve(Vector& x,
                   GaussDomain<GF2>::Matrix    &A,
                   const Vector& b,
                   const Method::SparseElimination& m)
     {
-        // We make a copy
+            // We make a copy
         GaussDomain<GF2>::Matrix SpA(A.field(), A.rowdim(), A.coldim());
         MatrixHom::map(SpA, A );
         return solvein(x, SpA, b, m);
@@ -243,28 +244,35 @@ namespace LinBox
                   const Method::SparseElimination& m,
                   Random& generator)
     {
-        // We make a copy
+            // We make a copy
         GaussDomain<GF2>::Matrix SpA(A.field(), A.rowdim(), A.coldim());
         MatrixHom::map(SpA, A );
         return solvein(x, SpA, b, m, generator);
     }
 
-    //! @internal Generic Elimination for SparseMatrix
+        //! @internal Generic Elimination for SparseMatrix
     template <class Vector, class Field>
     Vector& solve(Vector& x, const SparseMatrix<Field>& A, const Vector& b,
                   const Method::Elimination& m)
     {
-        //             bool consistent = false;
-        // sparse elimination based solver can be called here ?
-        // For now we call the dense one
+            //             bool consistent = false;
+            // sparse elimination based solver can be called here ?
+            // For now we call the dense one
 
         return solve(x, A, b,
                      typename FieldTraits<typename SparseMatrix<Field>::Field>::categoryTag(),
                      Method::BlasElimination(m));
-    }
-    // BlasElimination section ///////////////////
 
-    //! @internal Generic Elimination on Z/pZ (convert A to DenseMatrix)
+#if 0
+        if ( ! consistent ) {  // we will return the zero vector
+            for (typename Vector::iterator i = x.begin(); i != x.end(); ++i) *i = A.field().zero;
+        }
+        return x;
+#endif
+    }
+        // BlasElimination section ///////////////////
+
+        //! @internal Generic Elimination on Z/pZ (convert A to DenseMatrix)
     template <class Vector, class BB>
     Vector& solve(Vector& x, const BB& A, const Vector& b,
                   const RingCategories::ModularTag & tag,
@@ -274,7 +282,7 @@ namespace LinBox
         return solve(x, B, b, tag, m);
     }
 
-    //! @internal Generic Elimination for DenseMatrix on Z/pZ
+        //! @internal Generic Elimination for DenseMatrix on Z/pZ
     template <class Vector, class Field>
     Vector& solve(Vector& x, const BlasMatrix<Field>& A, const Vector& b,
                   const RingCategories::ModularTag & tag,
@@ -283,22 +291,22 @@ namespace LinBox
         if ((A.coldim() != x.size()) || (A.rowdim() != b.size()))
             throw LinboxError("LinBox ERROR: dimension of data are not compatible in system solving (solving impossible)");
 
+        commentator().start ("Solving linear system (FFLAS LQUP)", "LQUP::left_solve");
+            //bool consistent = false;
         LQUPMatrix<Field> LQUP(A);
+            //FactorizedMatrix<Field> LQUP(A);
+
         LQUP.left_solve(x, b);
 
-        return x;
-    }
+#if 0
+            // this should be implemented directly in left_solve
+        if ( ! consistent ) {  // we will return the zero vector
+            for (typename Vector::iterator i = x.begin(); i != x.end(); ++i)
+                *i = A.field().zero;
+        }
+#endif
+        commentator().stop ("done", NULL, "LQUP::left_solve");
 
-    //! @internal  Elimination for DenseMatrix on Z/pZ. Matrix A can be overwritten.
-    template <class Vector, class Field>
-    Vector& solvein(Vector& x, BlasMatrix<Field>& A, const Vector& b,
-                    const Method::BlasElimination& m)
-    {
-        if ((A.coldim() != x.size()) || (A.rowdim() != b.size()))
-            throw LinboxError("LinBox ERROR: dimension of data are not compatible in system solving (solving impossible)");
-
-        LQUPMatrix<Field> LQUP(A);
-        LQUP.left_solve(x, b);
         return x;
     }
 
@@ -310,45 +318,88 @@ namespace LinBox
         throw LinBoxFailure("You cannot do this");
     }
 
-    /* Integer tag Specialization for Dixon method:
-     * 2 interfaces:
-     *   - the output is a common denominator and a vector of numerator (no need of rational number)
-     *   - the output is a vector of rational
-     */
+        /* Integer tag Specialization for Dixon method:
+         * 2 interfaces:
+         *   - the output is a common denominator and a vector of numerator (no need of rational number)
+         *   - the output is a vector of rational
+         */
 
 
-    // error handler for bad use of the integer solver API
-    //! @internal Generic Elimination for  Integer matrices
+        // error handler for bad use of the integer solver API
+        //! @internal Generic Elimination for  Integer matrices
     template <class Vector, class BB>
     Vector& solve(Vector& x, const BB& A, const Vector& b,
                   const RingCategories::IntegerTag & tag,
                   const Method::BlasElimination& m)
     {
         std::cout<<"try to solve system over the integer\n"
-        <<"the API need either \n"
-        <<" - a vector of rational as the solution \n"
-        <<" - or an integer for the common denominator and a vector of integer for the numerators\n\n";
+                 <<"the API need either \n"
+                 <<" - a vector of rational as the solution \n"
+                 <<" - or an integer for the common denominator and a vector of integer for the numerators\n\n";
         throw LinboxError("bad use of integer API solver\n");
 
     }
 
-    /*
-     * 1st integer solver API :
-     * solution is a vector of rational numbers
-     * RatVector is assumed to be the type of a vector of rational number
-     */
+#if 0
+    template <class RatVector, class Vector, class BB, class MethodTraits>
+    Vector& solve(RatVector& x, const BB& A, const Vector& b,
+                  const RingCategories::RationalTag & tag,
+                  const MethodTraits& m)
+    {
+        if ((A.coldim() != x.size()) || (A.rowdim() != b.size()))
+            throw LinboxError("LinBox ERROR: dimension of data are not compatible in system solving (solving impossible)");
 
-    // default API (method is BlasElimination)
+        commentator().start ("Rational CRA Solve", "Rsolve");
+        typedef Givaro::Modular<double> Field;
+        PrimeIterator<IteratorCategories::HeuristicTag> genprime(FieldTraits<Field>::bestBitSize(A.coldim()));
+
+        RationalRemainder2< VarPrecEarlyMultipCRA<Field> > rra(3UL);//using default RR method
+        IntegerModularSolve<BB,Vector,MethodTraits > iteration(A, b, m);
+        integer den;
+        BlasVector<Givaro::ZRing<Integer> > num(A.field(),A.coldim());
+
+        rra(num, den, iteration, genprime);
+
+        typename RatVector::iterator it_x= x.begin();
+        typename BlasVector<Givaro::ZRing<Integer> >::const_iterator it_num= num.begin();
+
+        for (; it_x != x.end(); ++it_x, ++it_num){
+            integer g = gcd( *it_num, den);
+            *it_x = typename RatVector::value_type(*it_num/g, den/g);
+        }
+
+        commentator().stop ("done", NULL, "Rsolve");
+        return x;
+    }
+#endif
+        // error handler for non defined solver over rational domain
+#if 0
+    template <class Vector, class BB, class MethodTraits>
+    Vector& solve(Vector& x, const BB& A, const Vector& b,
+                  const RingCategories::RationalTag & tag,
+                  const MethodTraits& m)
+    {
+        throw LinboxError("LinBox ERROR: solver not yet defined over rational domain");
+    }
+#endif
+
+        /*
+         * 1st integer solver API :
+         * solution is a vector of rational numbers
+         * RatVector is assumed to be the type of a vector of rational number
+        */
+
+        // default API (method is BlasElimination)
     template<class RatVector, class Vector, class BB>
     RatVector& solve(RatVector& x, const BB &A, const Vector &b)
     {
         return solve(x, A, b, Method::BlasElimination());
     }
 
-    // API with Hybrid method
+        // API with Hybrid method
     template<class RatVector, class Vector, class BB>
     RatVector& solve(RatVector& x, const BB &A, const Vector &b,
-             const Method::Hybrid &m)
+                     const Method::Hybrid &m)
     {
         if (useBB(A))
             return solve(x, A, b, Method::Blackbox(m));
@@ -356,14 +407,14 @@ namespace LinBox
             return solve(x, A, b, Method::Elimination(m));
     }
 
-    // API with Blackbox method
+        // API with Blackbox method
     template<class RatVector, class Vector, class BB>
     RatVector& solve(RatVector& x, const BB &A, const Vector &b, const Method::Blackbox &m)
     {
         return solve(x, A, b, Method::Wiedemann(m));
     }
 
-    // API with Elimination method
+        // API with Elimination method
     template<class RatVector, class Vector, class BB>
     RatVector& solve(RatVector& x, const BB &A, const Vector &b, const Method::Elimination &m)
     {
@@ -371,7 +422,7 @@ namespace LinBox
     }
 
 
-    // launcher of specialized solver depending on the MethodTrait
+        // launcher of specialized solver depending on the MethodTrait
     template<class RatVector, class Vector, class BB, class MethodTraits>
     RatVector& solve(RatVector& x, const BB &A, const Vector &b, const MethodTraits &m)
     {
@@ -379,10 +430,10 @@ namespace LinBox
     }
 
 
-    /* Specializations for BlasElimination over the integers
-    */
+        /* Specializations for BlasElimination over the integers
+         */
 
-    // input matrix is generic (copying it into a BlasMatrix)
+        // input matrix is generic (copying it into a BlasMatrix)
     template <class RatVector, class Vector, class BB>
     RatVector& solve(RatVector& x, const BB& A, const Vector& b,
                      const RingCategories::IntegerTag & tag,
@@ -392,7 +443,7 @@ namespace LinBox
         return solve(x, B, b, tag, m);
     }
 
-    // input matrix is a BlasMatrix (no copy)
+        // input matrix is a BlasMatrix (no copy)
     template <class RatVector, class Vector, class Ring>
     RatVector& solve(RatVector& x, const BlasMatrix<Ring>& A, const Vector& b,
                      const RingCategories::IntegerTag & tag,
@@ -416,33 +467,33 @@ namespace LinBox
         return x;
     }
 
-    /*!
-     * 2nd integer solver API :
-     * solution is a formed by a common denominator and a vector of integer numerator
-     * solution is num/d
-     * BB: why not a struct RatVector2 { IntVector _n ; Int _d } ; ?
-     */
+        /*!
+         * 2nd integer solver API :
+         * solution is a formed by a common denominator and a vector of integer numerator
+         * solution is num/d
+        * BB: why not a struct RatVector2 { IntVector _n ; Int _d } ; ?
+        */
 
-    //@{
+        //@{
 
-    // default API (method is BlasElimination)
+        // default API (method is BlasElimination)
     template< class Vector, class BB>
     Vector& solve(Vector &x, typename BB::Field::Element &d, const BB &A, const Vector &b)
     {
         return solve(x, d, A, b, typename FieldTraits<typename BB::Field>::categoryTag(),  Method::BlasElimination());
     }
 
-    // launcher of specialized solver depending on the MethodTraits
+        // launcher of specialized solver depending on the MethodTraits
     template< class Vector, class BB, class MethodTraits>
     Vector& solve(Vector &x, typename BB::Field::Element &d, const BB &A, const Vector &b, const MethodTraits &m)
     {
         return solve(x, d, A, b, typename FieldTraits<typename BB::Field>::categoryTag(), m);
     }
 
-    /* Specialization for BlasElimination over the integers
-    */
+        /* Specialization for BlasElimination over the integers
+         */
 
-    // input matrix is generic (copying it into a BlasMatrix)
+        // input matrix is generic (copying it into a BlasMatrix)
     template <class Vector, class BB>
     Vector& solve(Vector& x, typename BB::Field::Element &d, const BB& A, const Vector& b,
                   const RingCategories::IntegerTag & tag,
@@ -452,19 +503,19 @@ namespace LinBox
         return solve(x, d, B, b, tag, m);
     }
 
-    // input matrix is a BlasMatrix (no copy)
+        // input matrix is a BlasMatrix (no copy)
     template <class Vector, class Ring>
     Vector& solve(Vector& x, typename Ring::Element &d,
                   const BlasMatrix<Ring>& A, const Vector& b,
                   const RingCategories::IntegerTag & tag,
                   const Method::BlasElimination& m)
     {
-        //!@bug check we don't copy
+            //!@bug check we don't copy
         Method::Dixon mDixon(m);
         return solve(x, d, A, b, tag, mDixon);
     }
 
-    // input matrix is a SparseMatrix (no copy)
+        // input matrix is a SparseMatrix (no copy)
     template <class Vect, class Ring>
     Vect& solve(Vect& x, typename Ring::Element &d,
                 const SparseMatrix<Ring, SparseMatrixFormat::SparseSeq>& A,
@@ -478,8 +529,8 @@ namespace LinBox
 
 
 
-    /** \brief solver specialization with the 2nd API and DixonTraits over integer (no copying)
-    */
+        /** \brief solver specialization with the 2nd API and DixonTraits over integer (no copying)
+         */
     template <class Vector, class Ring>
     Vector& solve(Vector& x, typename Ring::Element &d,
                   const BlasMatrix<Ring>& A,
@@ -492,89 +543,89 @@ namespace LinBox
         commentator().start ("Padic Integer Blas-based Solving ", "solving");
 
         typedef Givaro::Modular<double> Field;
-        // 0.7213475205 is an upper approximation of 1/(2log(2))
+            // 0.7213475205 is an upper approximation of 1/(2log(2))
         PrimeIterator<IteratorCategories::HeuristicTag> genprime(FieldTraits<Field>::bestBitSize(A.coldim()));
         RationalSolver<Ring, Field, PrimeIterator<IteratorCategories::HeuristicTag>, DixonTraits> rsolve(A.field(), genprime);
         SolverReturnStatus status = SS_OK;
 
-        // if singularity unknown and matrix is square, we try nonsingular solver
+            // if singularity unknown and matrix is square, we try nonsingular solver
         switch ( m.singular() ) {
-        case Specifier::SINGULARITY_UNKNOWN:
-            switch (A.rowdim() == A.coldim() ?
-                status=rsolve.solveNonsingular(x, d, A, b, false ,(int)m.maxTries()) : SS_SINGULAR) {
-            case SS_OK:
-                m.singular(Specifier::NONSINGULAR);
+            case Specifier::SINGULARITY_UNKNOWN:
+                switch (A.rowdim() == A.coldim() ?
+                        status=rsolve.solveNonsingular(x, d, A, b, false ,(int)m.maxTries()) : SS_SINGULAR) {
+                    case SS_OK:
+                        m.singular(Specifier::NONSINGULAR);
+                        break;
+                    case SS_SINGULAR:
+                        switch (m.solution()){
+                            case DixonTraits::DETERMINIST:
+                                status= rsolve.monolithicSolve(x, d, A, b, false, false, (int)m.maxTries(),
+                                                               (m.certificate()? SL_LASVEGAS: SL_MONTECARLO));
+                                break;
+                            case DixonTraits::RANDOM:
+                                status= rsolve.monolithicSolve(x, d, A, b, false, true, (int)m.maxTries(),
+                                                               (m.certificate()? SL_LASVEGAS: SL_MONTECARLO));
+                                break;
+                            case DixonTraits::DIOPHANTINE:
+                            {
+                                DiophantineSolver<RationalSolver<Ring,Field,PrimeIterator<IteratorCategories::HeuristicTag>, DixonTraits> > dsolve(rsolve);
+                                status= dsolve.diophantineSolve(x, d, A, b, (int)m.maxTries(),
+                                                                (m.certificate()? SL_LASVEGAS: SL_MONTECARLO));
+                            }
+                            break;
+                            default:
+                                break;
+                        }
+                        break;
+                    default:
+                        break;
+                }
                 break;
-            case SS_SINGULAR:
+
+            case Specifier::NONSINGULAR:
+                rsolve.solveNonsingular(x, d, A, b, false ,(int)m.maxTries());
+                break;
+
+            case Specifier::SINGULAR:
                 switch (m.solution()){
-                case DixonTraits::DETERMINIST:
-                    status= rsolve.monolithicSolve(x, d, A, b, false, false, (int)m.maxTries(),
-                                       (m.certificate()? SL_LASVEGAS: SL_MONTECARLO));
-                    break;
-                case DixonTraits::RANDOM:
-                    status= rsolve.monolithicSolve(x, d, A, b, false, true, (int)m.maxTries(),
-                                       (m.certificate()? SL_LASVEGAS: SL_MONTECARLO));
-                    break;
-                case DixonTraits::DIOPHANTINE:
+                    case DixonTraits::DETERMINIST:
+                        status= rsolve.monolithicSolve(x, d, A, b,
+                                                       false, false, (int)m.maxTries(),
+                                                       (m.certificate()? SL_LASVEGAS: SL_MONTECARLO));
+                        break;
+
+                    case DixonTraits::RANDOM:
+                        status= rsolve.monolithicSolve(x, d, A, b,
+                                                       false, true, (int)m.maxTries(),
+                                                       (m.certificate()? SL_LASVEGAS: SL_MONTECARLO));
+                        break;
+
+                    case DixonTraits::DIOPHANTINE:
                     {
                         DiophantineSolver<RationalSolver<Ring,Field,PrimeIterator<IteratorCategories::HeuristicTag>, DixonTraits> > dsolve(rsolve);
                         status= dsolve.diophantineSolve(x, d, A, b, (int)m.maxTries(),
-                                        (m.certificate()? SL_LASVEGAS: SL_MONTECARLO));
+                                                        (m.certificate()? SL_LASVEGAS: SL_MONTECARLO));
                     }
                     break;
-                default:
-                    break;
+
+                        //default:
+                        //  break;
                 }
-                break;
             default:
                 break;
-            }
-            break;
-
-        case Specifier::NONSINGULAR:
-            rsolve.solveNonsingular(x, d, A, b, false ,(int)m.maxTries());
-            break;
-
-        case Specifier::SINGULAR:
-            switch (m.solution()){
-            case DixonTraits::DETERMINIST:
-                status= rsolve.monolithicSolve(x, d, A, b,
-                                   false, false, (int)m.maxTries(),
-                                   (m.certificate()? SL_LASVEGAS: SL_MONTECARLO));
-                break;
-
-            case DixonTraits::RANDOM:
-                status= rsolve.monolithicSolve(x, d, A, b,
-                                   false, true, (int)m.maxTries(),
-                                   (m.certificate()? SL_LASVEGAS: SL_MONTECARLO));
-                break;
-
-            case DixonTraits::DIOPHANTINE:
-                {
-                    DiophantineSolver<RationalSolver<Ring,Field,PrimeIterator<IteratorCategories::HeuristicTag>, DixonTraits> > dsolve(rsolve);
-                    status= dsolve.diophantineSolve(x, d, A, b, (int)m.maxTries(),
-                                    (m.certificate()? SL_LASVEGAS: SL_MONTECARLO));
-                }
-                break;
-
-                //default:
-                //	break;
-            }
-        default:
-            break;
         }
 
         commentator().stop("done", NULL, "solving");
 
         if ( status == SS_INCONSISTENT ) {
             throw LinboxMathInconsistentSystem("Linear system is inconsistent");
-            // 			for (typename Vector::iterator i = x.begin(); i != x.end(); ++i) *i = A.field().zero;
+                //          for (typename Vector::iterator i = x.begin(); i != x.end(); ++i) *i = A.field().zero;
         }
         return x;
     }
 
-    /** \brief solver specialization with the 2nd API and DixonTraits over integer (no copying)
-    */
+        /** \brief solver specialization with the 2nd API and DixonTraits over integer (no copying)
+         */
     template <class Vect, class Ring>
     Vect& solve(Vect& x, typename Ring::Element &d,
                 const SparseMatrix<Ring, SparseMatrixFormat::SparseSeq> & A,
@@ -588,7 +639,7 @@ namespace LinBox
         commentator().start ("Padic Integer Sparse Elimination Solving", "solving");
 
         typedef Givaro::Modular<double> Field;
-        // 0.7213475205 is an upper approximation of 1/(2log(2))
+            // 0.7213475205 is an upper approximation of 1/(2log(2))
         PrimeIterator<IteratorCategories::HeuristicTag> genprime(FieldTraits<Field>::bestBitSize(A.coldim()));
         RationalSolver<Ring, Field, PrimeIterator<IteratorCategories::HeuristicTag>, SparseEliminationTraits> rsolve(A.field(), genprime);
         SolverReturnStatus status = SS_OK;
@@ -598,14 +649,14 @@ namespace LinBox
 
         if ( status == SS_INCONSISTENT ) {
             throw LinboxMathInconsistentSystem("Linear system is inconsistent");
-            // 			for (typename Vect::iterator i = x.begin(); i != x.end(); ++i) *i = A.field().zero;
+                //          for (typename Vect::iterator i = x.begin(); i != x.end(); ++i) *i = A.field().zero;
         }
         return x;
     }
 
-    //@}
+        //@}
 
-    // NonBlasElimination section ////////////////
+        // NonBlasElimination section ////////////////
 
     template <class Vector, class BB>
     Vector& solve(Vector& x, const BB& A, const Vector& b,
@@ -616,14 +667,14 @@ namespace LinBox
         return solve(x, B, b, tag, m);
     }
 
-    // note: no need for NonBlasElimination when RingCategory is integer
+        // note: no need for NonBlasElimination when RingCategory is integer
 
-    // Lanczos ////////////////
-    // may throw SolverFailed or InconsistentSystem
+        // Lanczos ////////////////
+        // may throw SolverFailed or InconsistentSystem
 
-    // Wiedemann section ////////////////
+        // Wiedemann section ////////////////
 
-    // may throw SolverFailed or InconsistentSystem
+        // may throw SolverFailed or InconsistentSystem
     template <class Vector, class BB>
     Vector& solve(Vector& x, const BB& A, const Vector& b,
                   const RingCategories::ModularTag & tag,
@@ -632,13 +683,13 @@ namespace LinBox
         if ((A.coldim() != x.size()) || (A.rowdim() != b.size()))
             throw LinboxError("LinBox ERROR: dimension of data are not compatible in system solving (solving impossible)");
 
-        // adapt to earlier signature of wiedemann solver
+            // adapt to earlier signature of wiedemann solver
         solve(A, x, b, A.field(), m);
         return x;
     }
 
-    // Only for nonsingular system for now.
-    // may throw SolverFailed or InconsistentSystem
+        // Only for nonsingular system for now.
+        // may throw SolverFailed or InconsistentSystem
     template <class Vector, class BB>
     Vector& solve(Vector& x, const BB& A, const Vector& b,
                   const RingCategories::ModularTag & tag,
@@ -647,17 +698,17 @@ namespace LinBox
         if ((A.coldim() != x.size()) || (A.rowdim() != b.size()))
             throw LinboxError("LinBox ERROR: dimension of data are not compatible in system solving (solving impossible)");
 
-        // adapt to earlier signature of wiedemann solver
+            // adapt to earlier signature of wiedemann solver
         typedef BlasMatrixDomain<typename BB::Field> Context;
         Context BMD(A.field());
         BlockWiedemannSolver<Context> BWS(BMD,m.blockingFactor(), m.blockingFactor()+1);
-        //BWS.solveNonSingular(x, A, b);
-                BWS.solve(x, A, b);
+            //BWS.solveNonSingular(x, A, b);
+        BWS.solve(x, A, b);
         return x;
     }
 
-    // Only for nonsingular system for now.
-    // may throw SolverFailed or InconsistentSystem
+        // Only for nonsingular system for now.
+        // may throw SolverFailed or InconsistentSystem
     template <class Vector, class BB>
     Vector& solve(Vector& x, const BB& A, const Vector& b,
                   const RingCategories::ModularTag & tag,
@@ -666,16 +717,16 @@ namespace LinBox
         if ((A.coldim() != x.size()) || (A.rowdim() != b.size()))
             throw LinboxError("LinBox ERROR: dimension of data are not compatible in system solving (solving impossible)");
 
-        // adapt to earlier signature of wiedemann solver
+            // adapt to earlier signature of wiedemann solver
         CoppersmithSolver<typename BB::Field> cs(A.field());
         cs.solveNonsingular(x, A, b);
         return x;
     }
 
-    /* remark 1.  I used copy constructors when switching method types.
-       But if the method types are (empty) child classes of a common  parent class containing
-       all the information, then casts can be used in place of copies.
-       */
+        /* remark 1.  I used copy constructors when switching method types.
+           But if the method types are (empty) child classes of a common  parent class containing
+           all the information, then casts can be used in place of copies.
+        */
 
 } // LinBox
 
@@ -699,125 +750,71 @@ namespace LinBox
         const MyMethod &M;
 
         IntegerModularSolve(const Blackbox& b, const Vector& v, const MyMethod& n) :
-            A(b), B(v), M(n)
-        {}
+                A(b), B(v), M(n)
+            {}
 
 
         template<typename Field>
-        typename Rebind<Vector, Field>::other& operator()(typename Rebind<Vector, Field>::other& x, const Field& F
-#ifdef __Detailed_Time_Measurement
-#ifdef __LINBOX_HAVE_MPI
-            ,Communicator   *C = NULL
-#endif
-#endif
-        ) const
-        {
-            typedef typename Blackbox::template rebind<Field>::other FBlackbox;
-#ifdef __Detailed_Time_Measurement
-            Timer chrono;
-            chrono.start();
-#endif
-            FBlackbox Ap(A, F);
+        typename Rebind<Vector, Field>::other& operator()(typename Rebind<Vector, Field>::other& x, const Field& F) const
+            {
+                typedef typename Blackbox::template rebind<Field>::other FBlackbox;
+                FBlackbox Ap(A, F);
 
-            typedef typename Rebind<Vector, Field>::other FVector;
-            FVector Bp(F, B);
-#ifdef __Detailed_Time_Measurement
-            chrono.stop();
-            std::cout<<
-#ifdef __LINBOX_HAVE_MPI
-            "Process "<<C->rank()<<
-#endif
-            " Modulo "<<chrono.usertime()<<std::endl;
-#endif
+                typedef typename Rebind<Vector, Field>::other FVector;
+                FVector Bp(F, B);
 
-            VectorWrapper::ensureDim (x, A.coldim());
-#ifdef __Detailed_Time_Measurement
-            chrono.start();
-#endif
-            solvein( x, Ap, Bp, M);
-#ifdef __Detailed_Time_Measurement
-            chrono.stop();
-            std::cout<<
-#ifdef __LINBOX_HAVE_MPI
-            "Process "<<C->rank()<<
-#endif
-            " Solve "<<chrono.usertime()<<std::endl;
-#endif
-            return x;
-        }
+                VectorWrapper::ensureDim (x, A.coldim());
+                return solve( x, Ap, Bp, M);
+            }
     };
 
 
-    //BB: How come I have to change the name so it works when directly called ?
+        //BB: How come I have to change the name so it works when directly called ?
     template <class Vector, class BB, class MyMethod>
     Vector& solveCRA(Vector& x, typename BB::Field::Element& d, const BB& A, const Vector& b,
-              const RingCategories::IntegerTag & tag,
-              const MyMethod& M
-#ifdef __LINBOX_HAVE_MPI
-            ,Communicator   *C = NULL
-#endif
-            )
+                     const RingCategories::IntegerTag & tag,
+                     const MyMethod& M,
+                     Communicator *Cptr = nullptr)
     {
         Integer den(1);
-#ifdef __LINBOX_HAVE_MPI	//MPI parallel version
-        if(!C || C->rank() == 0){
-#endif
+        if(!Cptr || Cptr->rank() == 0){
+            // @fixme This check could be done once upstream,
+            // as this solveCRA routine should not be called directly.
             if ((A.coldim() != x.size()) || (A.rowdim() != b.size()))
                 throw LinboxError("LinBox ERROR: dimension of data are not compatible in system solving (solving impossible)");
-                        commentator().start ("Integer CRA Solve", "Isolve");
-#ifdef __LINBOX_HAVE_MPI
+            commentator().start ("Integer CRA Solve", "Isolve");
         }
 
-#endif
-        PrimeIterator<LinBox::IteratorCategories::HeuristicTag> genprime((unsigned int)( 26 -(int)ceil(log((double)A.rowdim())*0.7213475205))); //RandomPrimeIterator genprime((unsigned int)( 26 -(int)ceil(log((double)A.rowdim())*0.7213475205)));
-//PrimeIterator<LinBox::IteratorCategories::DeterministicTag> genprime((unsigned int)( 26 -(int)ceil(log((double)A.rowdim())*0.7213475205)));
-
+        unsigned int bits = 26 -(int)ceil(log(A.rowdim() * 0.7213475205));
+        PrimeIterator<LinBox::IteratorCategories::HeuristicTag> genprime(bits);
         BlasVector<Givaro::ZRing<Integer>> num(A.field(),A.coldim());
         IntegerModularSolve<BB,Vector,MyMethod> iteration(A, b, M);
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-        typename BB::ConstIterator it = A.Begin();
-        typename BB::ConstIterator it_end = A.End();
-        integer max = 1,min=0;
-        while( it != it_end ){
-            if (max < (*it))
-                max = *it;
-            if ( min > (*it))
-                min = *it;
-            it++;
+
+        // @fixme Computing Hadamard bound should be set as a solution
+        Integer max = 1;
+        for (auto it = A.Begin(); it != A.End(); ++it) {
+            if (max < *it) max = *it;
+            else if (max < -*it) max = -*it;
         }
-        if (max<-min)
-            max=-min;
-        size_t n=A.coldim();
+        // @fixme This does not work because End() does not exist yet on Vector.
+        // for (auto it = b.Begin(); it != b.End(); ++it) {
+        //     if (max < *it) max = *it;
+        //     else if (max < -*it) max = -*it;
+        // }
+        auto n = A.coldim();
+        double hadamard = n * (Givaro::naturallog(n) + 2 * Givaro::naturallog(max));
 
-        double hadamard = n*(Givaro::naturallog(n)+2*Givaro::naturallog(max));//double hadamard = n*(log(double(n))+2*log(double(max)));
-//std::cout << " >>>>>>>>>>>>>>>> Hadamard:= " << hadamard << std::endl;
+        #ifdef __LINBOX_HAVE_MPI
+                MPIratChineseRemainder<FullMultipRatCRA<Givaro::ModularBalanced<double>>> cra(hadamard, Cptr);
+        #else
+                RationalRemainder<FullMultipRatCRA<Givaro::ModularBalanced<double>>> cra(hadamard);
+        #endif
 
-#ifdef __LINBOX_HAVE_MPI
-//		MPIratChineseRemainder< EarlyMultipRatCRA< Givaro::ModularBalanced<double> > > cra(3UL, C);
-        MPIratChineseRemainder< FullMultipRatCRA< Givaro::ModularBalanced<double> > > cra(hadamard, C);
+        cra(num, den, iteration, genprime);
 
-#else
-
-std::cerr << "Sequential solveCRA" << std::endl;
-
-//        RationalRemainder< EarlyMultipRatCRA< Givaro::ModularBalanced<double> > > cra(3UL);
-        RationalRemainder< FullMultipRatCRA< Givaro::ModularBalanced<double> > > cra(hadamard);
-#endif
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//        Timer chrono;
-//        chrono.start();
-        cra(num, den, iteration, genprime); //Repalce genprime with the masked one then every process will have its own generator
-#ifdef __LINBOX_HAVE_MPI
-//        chrono.stop();//std::cout << "The process ("<<C->rank()<<") spent total CPU time (seconds) in solveCRA: " << chrono.usertime() << std::endl;
-#else
- //       chrono.stop();//std::cout << "Spent CPU time (seconds) in solveCRA: " << chrono.usertime() << std::endl;
-#endif
-
-#ifdef __LINBOX_HAVE_MPI
-        if(!C || C->rank() == 0){
-#endif
-            typename Vector::iterator it_x= x.begin();
-            typename BlasVector<Givaro::ZRing<Integer>>::const_iterator it_num= num.begin();
+        if(!Cptr || Cptr->rank() == 0){
+            auto it_x = x.begin();
+            auto it_num = num.begin();
 
             // convert the result
             for (; it_x != x.end(); ++it_x, ++it_num)
@@ -826,9 +823,7 @@ std::cerr << "Sequential solveCRA" << std::endl;
             A.field().init(d, den);
 
             commentator().stop ("done", NULL, "Isolve");
-#ifdef __LINBOX_HAVE_MPI
         }
-#endif
 
         return x;
     }
@@ -837,40 +832,40 @@ std::cerr << "Sequential solveCRA" << std::endl;
 
 
 
-    //BB: How come SparseElimination needs this ?
-    // may throw SolverFailed or InconsistentSystem
+        //BB: How come SparseElimination needs this ?
+        // may throw SolverFailed or InconsistentSystem
     template <class Vector, class BB, class MyMethod>
     Vector& solve(Vector& x, typename BB::Field::Element& d, const BB& A, const Vector& b,
-              const RingCategories::IntegerTag & tag,
-              const MyMethod& M)
+                  const RingCategories::IntegerTag & tag,
+                  const MyMethod& M)
     {
-                Method::Dixon mDixon(M);
-                return solve(x,d,A,b,tag,mDixon);
-        //return solveCRA(x,d,A,b,tag,M);
+        Method::Dixon mDixon(M);
+        return solve(x,d,A,b,tag,mDixon);
+            //return solveCRA(x,d,A,b,tag,M);
     }
 
 
 #if 0 /*  not working */
     template <class Vector, class Field>
     Vector& solve(Vector& x, typename Field::Element& d, const BlasMatrix<Field>& A, const Vector& b,
-              const RingCategories::IntegerTag & tag,
-              const Method::CRA & M)
+                  const RingCategories::IntegerTag & tag,
+                  const Method::CRA & M)
     {
         return solve(x,d,A,b,tag,M.iterationMethod());
     }
 
     template <class Vector, class BB>
     Vector& solve(Vector& x, typename BB::Field::Element& d, const BB& A, const Vector& b,
-              const RingCategories::ModularTag & tag,
-              const Method::CRA& m)
+                  const RingCategories::ModularTag & tag,
+                  const Method::CRA& m)
     {
         return solve(x, d, A, b, tag, m.iterationMethod());
     }
 #endif
 
 #ifdef __LINBOX_HAVE_IML
-    //! IML wrapper.
-    //! @bug not recognised as template spec...
+        //! IML wrapper.
+        //! @bug not recognised as template spec...
     BlasVector<Givaro::ZRing<Integer>>&
     solveIML(BlasVector<Givaro::ZRing<Integer>>& x, Givaro::ZRing<Integer>::Element & d,
              const BlasMatrix<Givaro::ZRing<Integer>>& B, const BlasVector<Givaro::ZRing<Integer>>& b,
@@ -878,89 +873,89 @@ std::cerr << "Sequential solveCRA" << std::endl;
     {
         THIS_CODE_COMPILES_BUT_IS_NOT_TESTED; // NOT MUCH
         switch (m.routine()) {
-        case(1) : { /*  non singular */
-                      linbox_check(B.rowdim()==B.coldim());
-                      mpz_t * mp_A = REINTERP_IML_CONST(B.getPointer()) ;
-                      // reinterpret_cast<mpz_t*>(const_cast<Givaro::ZRing<Integer>::Element*>((B.getPointer())));
-                      //B.getConstPointer() ?
-                      mpz_t * mp_B = REINTERP_IML_CONST(&b[0]);
-                      mpz_t * mp_N = REINTERP_IML(&x[0]);
-                      mpz_t mp_D ;
-                      mpz_init(mp_D);
-                  if (!m.computeRNS()) {
-                      IML::nonsingSolvLlhsMM(IML::RightSolu,(long)B.rowdim(),1,
-                                 mp_A, mp_B, mp_N, mp_D);
-                  }
-                  else {
-                      long n = (long)B.coldim();
-                      long basislen = 1;
-                      mpz_t mp_alpha, mp_maxInter;
-                      IML::FiniteField qh;
-                      IML::FiniteField *basis, **basiscmb;
-                      IML::Double ** ARNS ;
-                      mpz_init(mp_alpha);
-                      IML::maxMagnMP(mp_A, n, n, n, mp_alpha);
-                      mpz_init_set_ui(mp_maxInter, 1);
-                      mpz_addmul_ui(mp_maxInter, mp_alpha, 2);
-                      qh            = IML::RNSbound(n);
-                      basiscmb      = IML::findRNS(qh, mp_maxInter, &basislen);
-                      basis = basiscmb[0];
-                      mpz_clear(mp_maxInter);
-                      mpz_clear(mp_alpha);
-                      /*  CRNS[i] = [A_11, A_12] mod basis[i] */
-                      ARNS = IML_XMALLOC(IML::Double *, (size_t)basislen);
-                      for (long i = 0; i < basislen; ++i)
-                      {
-                          ARNS[i] = IML_XMALLOC(IML::Double,(size_t)(n*n));
-                          for (long j = 0; j < n; ++j)
-                              for (long l = 0; l < n; l++)
-                                  ARNS[i][j*n+l] = (IML::Double) mpz_fdiv_ui(mp_A[j * n + l], basis[i]);
-                      }
-                      IML::nonsingSolvRNSMM(IML::RightSolu, n, 1, basislen,
-                                basis, ARNS, mp_B, mp_N, mp_D);
+            case(1) : { /*  non singular */
+                linbox_check(B.rowdim()==B.coldim());
+                mpz_t * mp_A = REINTERP_IML_CONST(B.getPointer()) ;
+                    // reinterpret_cast<mpz_t*>(const_cast<Givaro::ZRing<Integer>::Element*>((B.getPointer())));
+                    //B.getConstPointer() ?
+                mpz_t * mp_B = REINTERP_IML_CONST(&b[0]);
+                mpz_t * mp_N = REINTERP_IML(&x[0]);
+                mpz_t mp_D ;
+                mpz_init(mp_D);
+                if (!m.computeRNS()) {
+                    IML::nonsingSolvLlhsMM(IML::RightSolu,(long)B.rowdim(),1,
+                                           mp_A, mp_B, mp_N, mp_D);
+                }
+                else {
+                    long n = (long)B.coldim();
+                    long basislen = 1;
+                    mpz_t mp_alpha, mp_maxInter;
+                    IML::FiniteField qh;
+                    IML::FiniteField *basis, **basiscmb;
+                    IML::Double ** ARNS ;
+                    mpz_init(mp_alpha);
+                    IML::maxMagnMP(mp_A, n, n, n, mp_alpha);
+                    mpz_init_set_ui(mp_maxInter, 1);
+                    mpz_addmul_ui(mp_maxInter, mp_alpha, 2);
+                    qh            = IML::RNSbound(n);
+                    basiscmb      = IML::findRNS(qh, mp_maxInter, &basislen);
+                    basis = basiscmb[0];
+                    mpz_clear(mp_maxInter);
+                    mpz_clear(mp_alpha);
+                        /*  CRNS[i] = [A_11, A_12] mod basis[i] */
+                    ARNS = IML_XMALLOC(IML::Double *, (size_t)basislen);
+                    for (long i = 0; i < basislen; ++i)
+                    {
+                        ARNS[i] = IML_XMALLOC(IML::Double,(size_t)(n*n));
+                        for (long j = 0; j < n; ++j)
+                            for (long l = 0; l < n; l++)
+                                ARNS[i][j*n+l] = (IML::Double) mpz_fdiv_ui(mp_A[j * n + l], basis[i]);
+                    }
+                    IML::nonsingSolvRNSMM(IML::RightSolu, n, 1, basislen,
+                                          basis, ARNS, mp_B, mp_N, mp_D);
 
-                  }
-                  mpz_set(d.get_mpz(),mp_D);
-                  mpz_clear(mp_D);
+                }
+                mpz_set(d.get_mpz(),mp_D);
+                mpz_clear(mp_D);
 
-              }
-              //!@todo wrap nonsingSolvRNSMM too
-              break;
-        case (2) : { /*  certified */
-                   mpz_t * mp_A = REINTERP_IML_CONST(B.getPointer()) ;
-                   // reinterpret_cast<mpz_t*>(const_cast<Givaro::ZRing<Integer>::Element*>((B.getPointer())));
-                   //B.getConstPointer() ?
-                   mpz_t * mp_b = REINTERP_IML_CONST(&b[0]);
-                   mpz_t * mp_N = REINTERP_IML(&x[0]);
-                   mpz_t mp_D ;
-                   mpz_init(mp_D);
-                   mpz_t * mp_NZ = NULL;
-                   mpz_t mp_DZ ;
-                   if (m.certificate()) {
-                       mp_NZ = IML_XMALLOC(mpz_t,x.size());
-                       for (size_t i = 0; i < x.size(); ++i) { mpz_init(mp_NZ[i]); }
-                       mpz_init(mp_DZ);
-                   }
-                   if ( !m.reduced() ) {
-                       IML::certSolveMP(m.certificate(),
-                               (long) B.rowdim(),(long)B.coldim(),
-                                mp_A, mp_b, mp_N, mp_D,
-                                mp_NZ, mp_DZ);
-                   }
-                   else {
-                       IML::certSolveRedMP(m.certificate(),
-                                   m.nullcol() //NULLSPACE_COLUMN
-                                   ,(long)B.rowdim(),(long)B.coldim(),
-                                   mp_A, mp_b, mp_N, mp_D,
-                                   mp_NZ, mp_DZ);
+            }
+                    //!@todo wrap nonsingSolvRNSMM too
+                break;
+            case (2) : { /*  certified */
+                mpz_t * mp_A = REINTERP_IML_CONST(B.getPointer()) ;
+                    // reinterpret_cast<mpz_t*>(const_cast<Givaro::ZRing<Integer>::Element*>((B.getPointer())));
+                    //B.getConstPointer() ?
+                mpz_t * mp_b = REINTERP_IML_CONST(&b[0]);
+                mpz_t * mp_N = REINTERP_IML(&x[0]);
+                mpz_t mp_D ;
+                mpz_init(mp_D);
+                mpz_t * mp_NZ = NULL;
+                mpz_t mp_DZ ;
+                if (m.certificate()) {
+                    mp_NZ = IML_XMALLOC(mpz_t,x.size());
+                    for (size_t i = 0; i < x.size(); ++i) { mpz_init(mp_NZ[i]); }
+                    mpz_init(mp_DZ);
+                }
+                if ( !m.reduced() ) {
+                    IML::certSolveMP(m.certificate(),
+                                     (long) B.rowdim(),(long)B.coldim(),
+                                     mp_A, mp_b, mp_N, mp_D,
+                                     mp_NZ, mp_DZ);
+                }
+                else {
+                    IML::certSolveRedMP(m.certificate(),
+                                        m.nullcol() //NULLSPACE_COLUMN
+                                        ,(long)B.rowdim(),(long)B.coldim(),
+                                        mp_A, mp_b, mp_N, mp_D,
+                                        mp_NZ, mp_DZ);
 
-                   }
-                   mpz_set(d.get_mpz(),mp_D);
-                   mpz_clear(mp_D);
-               }
-               break;
-        default :
-               throw LinBoxError("unknownn routine from IML (choice 1/2). Got XXX");
+                }
+                mpz_set(d.get_mpz(),mp_D);
+                mpz_clear(mp_D);
+            }
+                break;
+            default :
+                throw LinBoxError("unknownn routine from IML (choice 1/2). Got XXX");
         }
         return x;
     }
@@ -968,8 +963,8 @@ std::cerr << "Sequential solveCRA" << std::endl;
 
     template <class RatVector, class Vector, class BB, class MyMethod>
     RatVector& solve(RatVector& x, const BB& A, const Vector& b,
-             const RingCategories::IntegerTag & tag,
-             const MyMethod& M)
+                     const RingCategories::IntegerTag & tag,
+                     const MyMethod& M)
     {
         if ((A.coldim() != x.size()) || (A.rowdim() != b.size()))
             throw LinboxError("LinBox ERROR: dimension of data are not compatible in system solving (solving impossible)");
@@ -992,8 +987,8 @@ std::cerr << "Sequential solveCRA" << std::endl;
 
     template <class RatVector, class Vector, class BB, class MethodTraits>
     RatVector& solve(RatVector& x, const BB& A, const Vector& b,
-             const RingCategories::RationalTag & tag,
-             const MethodTraits& m)
+                     const RingCategories::RationalTag & tag,
+                     const MethodTraits& m)
     {
         if ((A.coldim() != x.size()) || (A.rowdim() != b.size()))
             throw LinboxError("LinBox ERROR: dimension of data are not compatible in system solving (solving impossible)");
@@ -1020,8 +1015,8 @@ std::cerr << "Sequential solveCRA" << std::endl;
 
     template <class RatVector, class BB, class MethodTraits>
     RatVector& solve(RatVector& x, const BB& A, const RatVector& b,
-             const RingCategories::RationalTag & tag,
-             const MethodTraits& m)
+                     const RingCategories::RationalTag & tag,
+                     const MethodTraits& m)
     {
         if ((A.coldim() != x.size()) || (A.rowdim() != b.size()))
             throw LinboxError("LinBox ERROR: dimension of data are not compatible in system solving (solving impossible)");
@@ -1055,8 +1050,8 @@ std::cerr << "Sequential solveCRA" << std::endl;
 namespace LinBox {
     BlasVector<Givaro::ZRing<Integer>>&
     solveNum(BlasVector<Givaro::ZRing<Integer>>& x, Givaro::ZRing<Integer>::Element & d,
-         const BlasMatrix<Givaro::ZRing<Integer>>& B, const BlasVector<Givaro::ZRing<Integer>>& b,
-         const Method::NumSymOverlap & m)
+             const BlasMatrix<Givaro::ZRing<Integer>>& B, const BlasVector<Givaro::ZRing<Integer>>& b,
+             const Method::NumSymOverlap & m)
     {
         THIS_CODE_COMPILES_BUT_IS_NOT_TESTED; // NOT MUCH
 
@@ -1080,19 +1075,19 @@ namespace LinBox {
 namespace LinBox {
     BlasVector<Givaro::ZRing<Integer>>&
     solveNum(BlasVector<Givaro::ZRing<Integer>>& x, Givaro::ZRing<Integer>::Element & d,
-         const BlasMatrix<Givaro::ZRing<Integer>>& B, const BlasVector<Givaro::ZRing<Integer>>& b,
-         const Method::NumSymNorm & m)
+             const BlasMatrix<Givaro::ZRing<Integer>>& B, const BlasVector<Givaro::ZRing<Integer>>& b,
+             const Method::NumSymNorm & m)
     {
-        //THIS_CODE_COMPILES_BUT_IS_NOT_TESTED; // NOT MUCH
+            //THIS_CODE_COMPILES_BUT_IS_NOT_TESTED; // NOT MUCH
 
         typedef Givaro::Modular<int32_t> ZField;
-        // typedef Givaro::Modular<double> ZField;
+            // typedef Givaro::Modular<double> ZField;
         Givaro::ZRing<Integer> ZZ ;
         RationalSolver<Givaro::ZRing<Integer>, ZField, PrimeIterator<IteratorCategories::HeuristicTag>, NumSymNormTraits> rsolver(ZZ);
 
         int status = rsolver.solve(x, d, B, b);
         if (status)
-            // throw "fail" ;
+                // throw "fail" ;
             std::cerr << "fail:" << status << std::endl;
         return x;
     }
