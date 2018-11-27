@@ -1,16 +1,8 @@
 # Ignore all and unignore all with extensions,
-# so that no extensions are ignored by default.
+# so that no-extensions files are ignored by default.
 *
+!/**/
 !*.*
-
-# Accept some no-extension files
-!AUTHORS
-!CHANGED-INTERFACES
-!COPYING
-!HACKING
-!LICENCE
-!RELEASE-INSTRUCTIONS
-!TODO
 
 # Ignore generated files and folders
 **/Makefile.in
@@ -32,20 +24,17 @@ build-aux/
 # Ignore specific files
 _configs.sed
 aclocal.m4
+autogen.status
 config.h
 config.h.in
 config.status
-linbox/config.h
+linbox.pc
 macros/libtool.m4
 macros/ltoptions.m4
 macros/ltsugar.m4
 macros/ltversion.m4
 macros/lt~obsolete.m4
-autogen.status
-linbox.pc
 
 # @todo Don't know why that is here
 tests/.tmp-tests
-tests/checker
 tests/checker.dSYM/
-tests/temp2
