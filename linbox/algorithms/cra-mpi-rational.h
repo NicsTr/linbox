@@ -41,14 +41,14 @@ namespace LinBox {
         typedef typename RatCRABase::DomainElement DomainElement;
 
     protected:
-        RatCRABase Builder_;
+        RatCRABase _builder;
         Communicator* _communicator = nullptr;
         unsigned int _processCount = 0u;
 
     public:
         template <class Param>
         MPIRationalRemainder(const Param& b, Communicator* c)
-            : Builder_(b)
+            : _builder(b)
             , _communicator(c)
             , _processCount(c->size())
         {
@@ -64,7 +64,7 @@ namespace LinBox {
         {
             // Check if just sequential
             if (_communicator == nullptr || _processCount == 1) {
-                RationalRemainder<RatCRABase> sequential(Builder_);
+                RationalRemainder<RatCRABase> sequential(_builder);
                 return sequential(num, den, Iteration, primeg);
             }
 
@@ -72,7 +72,7 @@ namespace LinBox {
                 Domain D(*primeg);       // @fixme Why?
                 BlasVector<Domain> r(D); // @fixme What's that?
                 master_task(Iteration, D, r);
-                return Builder_.result(num, den);
+                return _builder.result(num, den);
             }
             else {
                 worker_task(Iteration);
@@ -98,7 +98,7 @@ namespace LinBox {
 
                 // Find the next valid prime
                 Integer p = *(++gen);
-                while (Builder_.noncoprime(p) || usedPrimes.find(p) != usedPrimes.end()) {
+                while (_builder.noncoprime(p) || usedPrimes.find(p) != usedPrimes.end()) {
                     p = *(++gen);
                 };
                 usedPrimes.insert(p);
@@ -113,28 +113,18 @@ namespace LinBox {
             }
         }
 
-        void compute_stat_comm(int* primes, BlasVector<Domain>& r, int& pp, int& idle_process, int& poison_pills_left)
+        void compute_stat_comm(BlasVector<Domain>& r, Integer& p, int& poison_pills_left)
         {
-            idle_process = 0;
+            // @fixme Have r resized at right size first
 
-            r.resize(r.size() + 1);
-            //  receive the beginnin and end of a vector in heapspace
-            _communicator->recv(r.begin(), r.end(), MPI_ANY_SOURCE, 0);
+            // Receive the result and the associated prime
+            _communicator->recv(p, MPI_ANY_SOURCE);
+            int process = (_communicator->status()).MPI_SOURCE;
+            _communicator->recv(r, process);
 
-            //  determine which process sent answer
-            //  and give them a new tag either to continue or to stop
-            idle_process = (_communicator->status()).MPI_SOURCE;
-
-            poison_pills_left -= primes[idle_process - 1];
-
-            // send the tag
-            _communicator->send(primes[idle_process - 1], idle_process);
-
-            // Store the corresponding prime number
-            pp = r[r.size() - 1];
-
-            // Restructure the vector like before without added prime number
-            r.resize(r.size() - 1);
+            // Send the poison pill, or continue
+            int poisonPill = _builder.terminated() ? 1 : 0;
+            _communicator->send(poisonPill, process);
         }
 
         template <class Function>
@@ -142,25 +132,21 @@ namespace LinBox {
         {
             // ----- Init
 
-            int primes[_processCount - 1];
+            int startWork = 0;
             for (auto i = 1u; i < _processCount; i++) {
-                primes[i - 1] = 0;
-                _communicator->send(primes[i - 1], i);
+                _communicator->send(startWork, i);
             }
-            Builder_.initialize(D, Iteration(r, D));
+            _builder.initialize(D, Iteration(r, D));
 
-            // ----- Compute
+            // ----- Compute (CRA reconstruction according to workers' results)
 
             int poisonPillsLeft = _processCount - 1;
-            int pp;
-            int idle_process = 0;
             while (poisonPillsLeft > 0) {
-                compute_stat_comm(primes, r, pp, idle_process, poisonPillsLeft);
+                Integer p;
+                compute_stat_comm(r, p, poisonPillsLeft);
 
-                Domain D(pp);
-                Builder_.progress(D, r);
-
-                primes[idle_process - 1] = (Builder_.terminated()) ? 1 : 0;
+                Domain D(p);
+                _builder.progress(D, r);
             }
         }
     };

@@ -23,6 +23,8 @@
 #ifndef __LINBOX_mpicpp_H
 #define __LINBOX_mpicpp_H
 
+#include <linbox/linbox-config.h>
+
 #ifndef __LINBOX_HAVE_MPI
 
 namespace LinBox {
