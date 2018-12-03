@@ -144,7 +144,7 @@ int main(int argc, char** argv)
     Givaro::ZRing<Integer> ZZ;
     DenseMatrix<Givaro::ZRing<Integer>> A(ZZ, ni, nj);
 
-    typedef BlasVector<Givaro::ZRing<Integer>> DenseVector;
+    using DenseVector = BlasVector<Givaro::ZRing<Integer>>;
     DenseVector X(ZZ, A.rowdim()), X2(ZZ, A.coldim()), B(ZZ, A.coldim());
 
     for (long j = 0; j < (long)niter; j++) {
