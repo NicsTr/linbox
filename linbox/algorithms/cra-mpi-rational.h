@@ -37,8 +37,8 @@ namespace LinBox {
 
     template <class RatCRABase>
     struct MPIRationalRemainder {
-        typedef typename RatCRABase::Domain Domain;
-        typedef typename RatCRABase::DomainElement DomainElement;
+        using Domain = typename RatCRABase::Domain;
+        using DomainElement = typename RatCRABase::DomainElement;
 
     protected:
         RatCRABase _builder;
@@ -62,6 +62,8 @@ namespace LinBox {
         BlasVector<Givaro::ZRing<Integer>>& operator()(BlasVector<Givaro::ZRing<Integer>>& num, Integer& den, Function& Iteration,
                                                        PrimeIterator& primeg)
         {
+            // @fixme The prime generator should somehow be used for the MaskPrimeGenerator, right?
+
             // Check if just sequential
             if (_communicator == nullptr || _processCount == 1) {
                 RationalRemainder<RatCRABase> sequential(_builder);
@@ -69,9 +71,7 @@ namespace LinBox {
             }
 
             if (_communicator->master()) {
-                Domain D(*primeg);       // @fixme Why?
-                BlasVector<Domain> r(D); // @fixme What's that?
-                master_task(Iteration, D, r);
+                master_task(Iteration);
                 return _builder.result(num, den);
             }
             else {
@@ -113,22 +113,8 @@ namespace LinBox {
             }
         }
 
-        void compute_stat_comm(BlasVector<Domain>& r, Integer& p, int& poison_pills_left)
-        {
-            // @fixme Have r resized at right size first
-
-            // Receive the result and the associated prime
-            _communicator->recv(p, MPI_ANY_SOURCE);
-            int process = (_communicator->status()).MPI_SOURCE;
-            _communicator->recv(r, process);
-
-            // Send the poison pill, or continue
-            int poisonPill = _builder.terminated() ? 1 : 0;
-            _communicator->send(poisonPill, process);
-        }
-
         template <class Function>
-        void master_task(Function& Iteration, Domain& D, BlasVector<Domain>& r)
+        void master_task(Function& Iteration)
         {
             // ----- Init
 
@@ -136,17 +122,33 @@ namespace LinBox {
             for (auto i = 1u; i < _processCount; i++) {
                 _communicator->send(startWork, i);
             }
-            _builder.initialize(D, Iteration(r, D));
+
+            // @note We need a valid domain to initialize the builder,
+            // however, we don't know any prime yet.
+            // Fact is it doesn't really matter here.
+            Domain D(3);
+            BlasVector<Domain> result;
+            _builder.initialize(D, Iteration(result, D));
 
             // ----- Compute (CRA reconstruction according to workers' results)
 
             int poisonPillsLeft = _processCount - 1;
             while (poisonPillsLeft > 0) {
                 Integer p;
-                compute_stat_comm(r, p, poisonPillsLeft);
+                _communicator->recv(p, MPI_ANY_SOURCE);
+                int process = (_communicator->status()).MPI_SOURCE;
+                _communicator->recv(result, process);
+
+                // Send the poison pill, or continue
+                int poisonPill = _builder.terminated() ? 1 : 0;
+                _communicator->send(poisonPill, process);
+                if (poisonPill == 1) {
+                    poisonPillsLeft -= 1;
+                    continue;
+                }
 
                 Domain D(p);
-                _builder.progress(D, r);
+                _builder.progress(D, result);
             }
         }
     };
